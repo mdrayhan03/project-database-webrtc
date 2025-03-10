@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Buzzy - Join Meeting</title>
+    <link href="https://cdn.lineicons.com/4.0/lineicons.css" rel="stylesheet" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <div class="wrapper">
+      <!-- Navigation Bar -->
+      <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+          <a class="navbar-brand" href="index.html">
+            <img src="image_1.png" alt="Buzzy Logo" height="40" />
+          </a>
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+              <li class="nav-item">
+                <a class="nav-link" href="login.html">Login</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="signup.html">Sign Up</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+
+      <div class="main p-3">
+        <div class="container">
+          <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+              <div class="card shadow">
+                <div class="card-body p-5">
+                  <div class="text-center mb-4">
+                    <img src="image_1.png" alt="Buzzy Logo" height="60" />
+                    <h2 class="mt-3">Join Meeting</h2>
+                    <p class="meeting-id-display" id="displayRoomId"></p>
+                  </div>
+                  
+                  <form id="guestJoinForm">
+                    <div class="mb-4">
+                      <label for="guestName" class="form-label">Your Name</label>
+                      <input type="text" class="form-control" id="guestName" placeholder="Enter your name" required>
+                    </div>
+                    
+                    <div class="device-preview mb-4">
+                      <div class="video-preview">
+                        <video id="previewVideo" autoplay muted playsinline></video>
+                        <div class="preview-controls">
+                          <button type="button" id="togglePreviewVideo" class="btn btn-sm btn-light rounded-circle">
+                            <i class="fas fa-video"></i>
+                          </button>
+                          <button type="button" id="togglePreviewMic" class="btn btn-sm btn-light rounded-circle">
+                            <i class="fas fa-microphone"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100">Join Now</button>
+                  </form>
+                  
+                  <div class="text-center mt-4">
+                    <p>Don't have an account? <a href="signup.html">Sign up</a> for more features.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        // Get room ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const roomId = urlParams.get('room');
+        
+        // Display room ID
+        document.getElementById("displayRoomId").textContent = `Meeting ID: ${roomId}`;
+        
+        // Video preview functionality
+        let stream = null;
+        let isVideoOn = true;
+        let isMicOn = true;
+        
+        // Get video preview elements
+        const previewVideo = document.getElementById("previewVideo");
+        const toggleVideoBtn = document.getElementById("togglePreviewVideo");
+        const toggleMicBtn = document.getElementById("togglePreviewMic");
+        
+        // Request camera and mic permissions
+        async function setupPreview() {
+          try {
+            stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            previewVideo.srcObject = stream;
+          } catch (err) {
+            console.error("Error accessing media devices:", err);
+            // Show fallback UI for no permissions
+            previewVideo.style.background = '#333';
+            previewVideo.style.display = 'flex';
+            previewVideo.style.justifyContent = 'center';
+            previewVideo.style.alignItems = 'center';
+            previewVideo.innerHTML = '<div class="text-white">Camera access denied</div>';
+          }
+        }
+        
+        // Call setup
+        setupPreview();
+        
+        // Toggle video
+        toggleVideoBtn.addEventListener("click", function() {
+          if (stream) {
+            isVideoOn = !isVideoOn;
+            stream.getVideoTracks().forEach(track => {
+              track.enabled = isVideoOn;
+            });
+            
+            // Update UI
+            const icon = toggleVideoBtn.querySelector("i");
+            if (isVideoOn) {
+              icon.className = "fas fa-video";
+            } else {
+              icon.className = "fas fa-video-slash";
+            }
+          }
+        });
+        
+        // Toggle microphone
+        toggleMicBtn.addEventListener("click", function() {
+          if (stream) {
+            isMicOn = !isMicOn;
+            stream.getAudioTracks().forEach(track => {
+              track.enabled = isMicOn;
+            });
+            
+            // Update UI
+            const icon = toggleMicBtn.querySelector("i");
+            if (isMicOn) {
+              icon.className = "fas fa-microphone";
+            } else {
+              icon.className = "fas fa-microphone-slash";
+            }
+          }
+        });
+        
+        // Form submission
+        const guestJoinForm = document.getElementById("guestJoinForm");
+        
+        guestJoinForm.addEventListener("submit", function(event) {
+          event.preventDefault();
+          
+          const guestName = document.getElementById("guestName").value;
+          
+          if (guestName.trim() === "") {
+            alert("Please enter your name");
+            return;
+          }
+          
+          // Store guest name in localStorage
+          localStorage.setItem("buzzyGuestName", guestName);
+          localStorage.setItem("buzzyVideoEnabled", isVideoOn);
+          localStorage.setItem("buzzyMicEnabled", isMicOn);
+          
+          // Stop tracks before navigating away
+          if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+          }
+          
+          // Redirect to meeting room
+          window.location.href = `meeting.html?room=${roomId}&isGuest=true`;
+        });
+      });
+    </script>
+  </body>
+</html>

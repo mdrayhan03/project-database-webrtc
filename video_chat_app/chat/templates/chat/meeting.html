@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Buzzy - Meeting Room</title>
+    <link href="https://cdn.lineicons.com/4.0/lineicons.css" rel="stylesheet" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="meeting_style.css" />
+  </head>
+  <body>
+    <div class="meeting-container">
+      <!-- Video Section -->
+      <div class="video-section">
+        <div class="participant">
+          <video id="localVideo" autoplay muted playsinline></video>
+          <div class="participant-info">
+            <span id="localParticipantName">You</span>
+            <i class="fas fa-microphone" id="localMicStatus"></i>
+          </div>
+        </div>
+        <div class="participant">
+          <video id="remoteVideo" autoplay playsinline></video>
+          <div class="participant-info">
+            <span id="remoteParticipantName">Waiting...</span>
+            <i class="fas fa-microphone" id="remoteMicStatus"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Side Panel (Meeting Code & Admin Controls) -->
+      <div class="right-panel">
+        <!-- Meeting Code Display -->
+        <div class="meeting-code-container">
+          <div class="meeting-code-header">
+            <h4>Meeting Code</h4>
+          </div>
+          <div class="meeting-code-content">
+            <span id="meetingCodeDisplay">BUZZY-123-456</span>
+            <button id="copyCodeBtn" class="btn-control-small" title="Copy meeting code">
+              <i class="fas fa-copy"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Admin Controls -->
+        <div class="admin-panel" id="adminPanel">
+          <div class="admin-header">
+            <h4>Admin Controls</h4>
+          </div>
+          <div class="admin-controls-content">
+            <button class="admin-btn" title="Kick participant">
+              <i class="fas fa-user-slash"></i>
+              <span>Kick</span>
+            </button>
+            <button class="admin-btn" title="Mute all participants">
+              <i class="fas fa-microphone-slash"></i>
+              <span>Mute All</span>
+            </button>
+            <button class="admin-btn" title="Disable chat">
+              <i class="fas fa-comment-slash"></i>
+              <span>Disable Chat</span>
+            </button>
+            <button class="admin-btn" title="Lock meeting">
+              <i class="fas fa-lock"></i>
+              <span>Lock Meeting</span>
+            </button>
+            <button class="admin-btn" title="Record meeting">
+              <i class="fas fa-record-vinyl"></i>
+              <span>Record</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Chat Box -->
+        <div class="chat-box" id="chatBox">
+          <div class="chat-header">
+            <h4>Meeting Chat</h4>
+            <button class="close-chat" id="toggleChatBtn">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div class="chat-messages" id="chatMessages"> 
+
+            <!-- Messages will be populated here -->
+            <div class="chat-message system-message">
+              <div class="message-content">
+                <p>Welcome to the meeting! Chat messages will appear here.</p>
+              </div>
+            </div>
+          </div>
+          <div class="chat-input">
+            <input type="text" id="messageInput" placeholder="Type a message..." />
+            <button id="sendMessageBtn">
+              <i class="fas fa-paper-plane"></i>
+            </button>
+          </div>
+        </div>
+      </div> 
+
+      <!-- Control Buttons -->
+      <div class="control-buttons">
+        <button class="btn-control" id="toggleMic" title="Toggle microphone">
+          <i class="fas fa-microphone"></i>
+        </button>
+        <button class="btn-control" id="toggleVideo" title="Toggle video">
+          <i class="fas fa-video"></i>
+        </button>
+        <button class="btn-control" id="toggleParticipants" title="Show participants">
+          <i class="fas fa-users"></i>
+        </button>
+        <button class="btn-control" id="toggleRightPanel" title="Open chat">
+          <i class="fas fa-comment"></i>
+        </button>
+        <button class="btn-control" id="shareScreen" title="Share screen">
+          <i class="fas fa-desktop"></i>
+        </button>
+        <button class="btn-control btn-end-call" id="endCall" title="End call">
+          <i class="fas fa-phone-slash"></i>
+        </button>
+      </div>
+
+      <!-- Participants List Popup -->
+      <div class="participants-list" id="participantsList">
+        <div class="participants-header">
+          <h4>Participants (2)</h4>
+          <button class="close-participants" id="closeParticipantsList">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="participants-content">
+          <div class="participant-item">
+            <span>You (Host)</span>
+            <div class="participant-controls">
+              <button class="participant-control" title="You are muted">
+                <i class="fas fa-microphone-slash"></i>
+              </button>
+            </div>
+          </div>
+          <div class="participant-item">
+            <span>John Doe</span>
+            <div class="participant-controls">
+              <button class="participant-control" title="Mute participant">
+                <i class="fas fa-microphone"></i>
+              </button>
+              <button class="participant-control" title="Remove participant">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,188 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap");
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+  background-color: #fafbfe;
+}
+
+/* Wrapper to keep sidebar and main content structured */
+.wrapper {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Main Content */
+.main {
+  flex-grow: 1;
+  padding: 20px;
+  transition: all 0.35s ease-in-out;
+  text-align: center;
+}
+
+/* Sidebar */
+#sidebar {
+  width: 70px;
+  min-width: 70px;
+  background-color: #3f51b5; /* Sidebar Background */
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease-in-out;
+  color: #ffffff;
+}
+
+/* Expand Sidebar */
+#sidebar.expand {
+  width: 260px;
+  min-width: 260px;
+}
+
+/* Sidebar Toggle Button */
+.toggle-btn {
+  background-color: transparent;
+  border: none;
+  padding: 1rem;
+  cursor: pointer;
+}
+
+.toggle-btn i {
+  font-size: 1.5rem;
+  color: #fff;
+}
+
+/* Sidebar Logo */
+.sidebar-logo {
+  padding: 1rem;
+  text-align: center;
+}
+
+.sidebar-logo a {
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+/* Hide text when sidebar is collapsed */
+#sidebar:not(.expand) .sidebar-logo,
+#sidebar:not(.expand) a.sidebar-link span {
+  display: none;
+}
+
+/* Sidebar Navigation */
+.sidebar-nav {
+  flex-grow: 1;
+  padding: 1rem 0;
+}
+
+.sidebar-item {
+  position: relative;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  color: #ffffff;
+  font-size: 0.95rem;
+  text-decoration: none;
+  white-space: nowrap;
+  border-left: 3px solid transparent;
+  transition: background 0.3s;
+}
+
+.sidebar-link i {
+  font-size: 1.2rem;
+  margin-right: 1rem;
+}
+
+.sidebar-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-left: 3px solid #ffcc00;
+  color: #ffcc00;
+}
+
+/* Sidebar Dropdown */
+.sidebar-dropdown {
+  display: none;
+  background: rgba(255, 255, 255, 0.1);
+  margin-left: 15px;
+  padding-left: 10px;
+  border-left: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.sidebar-item .has-dropdown {
+  cursor: pointer;
+}
+
+.sidebar-item .has-dropdown + .sidebar-dropdown {
+  display: none;
+}
+
+.sidebar-item .has-dropdown[aria-expanded="true"] + .sidebar-dropdown {
+  display: block;
+}
+
+/* Sidebar Footer */
+.sidebar-footer {
+  padding: 1rem;
+  text-align: center;
+}
+
+.sidebar-footer a {
+  color: #ffffff;
+  font-size: 1rem;
+  text-decoration: none;
+}
+
+.sidebar-footer a:hover {
+  color: #ffcc00;
+}
+
+/* Footer */
+.footer {
+  background: #2f3b91; /* Darker Blue */
+  color: #ffffff;
+  font-size: 14px;
+  text-align: center;
+  padding: 15px;
+  position: fixed;
+  width: 100%;
+  bottom: 0;
+}
+
+.footer a {
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+/* Join Meeting Button */
+/* Center the Join Meeting Button */
+.join-meeting {
+  text-align: center;
+  margin-top: 20px; /* Adjust as needed */
+}
+
+/* Style for the Join Meeting Button */
+.join-meeting .btn {
+  font-size: 1rem;
+  padding: 12px 24px;
+  border-radius: 25px;
+  background: #007bff; /* Brighter Blue */
+  color: white;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.join-meeting .btn:hover {
+  background: #0056b3;
+  transform: scale(1.05);
+}

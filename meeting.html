@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Buzzy - Meeting Room</title>
+    <link href="https://cdn.lineicons.com/4.0/lineicons.css" rel="stylesheet" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="meeting_style.css" />
+  </head>
+  <body>
+    <div class="meeting-container">
+      <!-- Video Section -->
+      <div class="video-section">
+        <video id="localVideo" autoplay playsinline></video>
+        <video id="remoteVideo" autoplay playsinline></video>
+      </div>
+
+      <!-- Chat Box -->
+      <div class="chat-box">
+        <div class="chat-header">
+          <span>Chat</span>
+          <button class="close-chat">&times;</button>
+        </div>
+        <div class="chat-messages"></div>
+        <div class="chat-input">
+          <input type="text" id="chatMessage" placeholder="Type a message..." />
+          <button id="sendMessage">Send</button>
+        </div>
+      </div>
+
+      <!-- Room ID Pop-up (Bottom-Left) -->
+      <div class="room-popup" id="roomPopup">
+        <button class="close-popup">&times;</button>
+        <p>Your meeting's ready</p>
+        <p>Room ID: <span id="roomIdDisplay"></span></p>
+        <button id="copyRoomId">Copy</button>
+      </div>
+
+      <!-- Control Buttons -->
+      <div class="control-buttons">
+        <button id="toggleMic" class="btn-control">
+          <i id="micIcon" class="fa-sharp fa-solid fa-microphone"></i>
+        </button>
+        <button id="toggleVideo" class="btn-control">
+          <i id="videoIcon" class="fa-sharp fa-solid fa-video"></i>
+        </button>
+        <!-- End Call -->
+        <button id="endCall" class="btn-control btn-end-call">
+          <i class="fa-sharp fa-solid fa-phone-hangup"></i>
+        </button>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>

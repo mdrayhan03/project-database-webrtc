@@ -1,89 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Chat</title>
+    <title>WebRTC Video Chat</title>
 </head>
-<style>
-    video {
-        border : 2px solid black;
-    }
-</style>
 <body>
     <video id="localVideo" autoplay playsinline></video>
     <video id="remoteVideo" autoplay playsinline></video>
     <script>
         const roomName = "{{ room_name }}";
-        const ws = new WebSocket(`ws://${window.location.host}/ws/chat/${roomName}/`);
-
-        let localStream;
-        let peerConnection;
-        const configuration = {'iceServers': [{'urls': 'stun:stun.l.google.com:19302'}]};
-
-        // Get local video/audio
-        navigator.mediaDevices.getUserMedia({video: true, audio: true}).then(stream => {
-            document.getElementById('localVideo').srcObject = stream;
-            localStream = stream;
-        }).catch(error => console.error("Error accessing media devices:", error));
-
-        ws.onmessage = (event) => {
-            const message = JSON.parse(event.data);
-
-            if (message.offer) {
-                console.log("Received Offer");
-                createPeerConnection();
-                peerConnection.setRemoteDescription(new RTCSessionDescription(message.offer))
-                    .then(() => peerConnection.createAnswer())
-                    .then(answer => {
-                        peerConnection.setLocalDescription(answer);
-                        ws.send(JSON.stringify({'answer': answer}));
-                    })
-                    .catch(error => console.error("Error handling offer:", error));
-
-            } else if (message.answer) {
-                console.log("Received Answer");
-                peerConnection.setRemoteDescription(new RTCSessionDescription(message.answer))
-                    .catch(error => console.error("Error setting remote answer:", error));
-
-            } else if (message.candidate) {
-                console.log("Received ICE Candidate");
-                peerConnection.addIceCandidate(new RTCIceCandidate(message.candidate))
-                    .catch(error => console.error("Error adding ICE candidate:", error));
-            }
+        const ws = new WebSocket(`wss://${window.location.host}/ws/videochat/${roomName}/`);
+        
+        let localStream, remoteStream, peerConnection;
+        const config = {
+            iceServers: [
+                { urls: "stun:stun.l.google.com:19302" },  // Free STUN server
+                { urls: "turn:your-turn-server", username: "user", credential: "password" }  // TURN required for different IP networks
+            ]
         };
 
-        function createPeerConnection() {
-            if (peerConnection) return;  // Prevent duplicate connections
+        async function startCall() {
+            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            document.getElementById("localVideo").srcObject = localStream;
+            peerConnection = new RTCPeerConnection(config);
 
-            peerConnection = new RTCPeerConnection(configuration);
+            localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+            peerConnection.ontrack = event => {
+                document.getElementById("remoteVideo").srcObject = event.streams[0];
+            };
 
             peerConnection.onicecandidate = event => {
                 if (event.candidate) {
-                    ws.send(JSON.stringify({'candidate': event.candidate}));
-                } else {
-                    console.log("ICE gathering complete.");
+                    ws.send(JSON.stringify({ type: "ice-candidate", candidate: event.candidate }));
                 }
             };
 
-            peerConnection.ontrack = event => {
-                document.getElementById('remoteVideo').srcObject = event.streams[0];
+            ws.onmessage = async (message) => {
+                let data = JSON.parse(message.data);
+
+                if (data.type === "offer") {
+                    await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
+                    const answer = await peerConnection.createAnswer();
+                    await peerConnection.setLocalDescription(answer);
+                    ws.send(JSON.stringify({ type: "answer", answer }));
+                } else if (data.type === "answer") {
+                    await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+                } else if (data.type === "ice-candidate") {
+                    peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
+                }
             };
 
-            localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+            const offer = await peerConnection.createOffer();
+            await peerConnection.setLocalDescription(offer);
+            ws.send(JSON.stringify({ type: "offer", offer }));
         }
 
-        // Only the first user initiates the call
-        setTimeout(() => {
-            if (!peerConnection) {
-                console.log("Starting Call...");
-                createPeerConnection();
-                peerConnection.createOffer().then(offer => {
-                    peerConnection.setLocalDescription(offer);
-                    ws.send(JSON.stringify({'offer': offer}));
-                });
-            }
-        }, 2000);
+        startCall();
     </script>
 </body>
 </html>

@@ -194,3 +194,28 @@ function restrictGuestPermissions() {
     document.getElementById("toggleMic").disabled = false;
     document.getElementById("toggleVideo").disabled = false;
 }
+
+// for audio and video button 
+document.addEventListener("DOMContentLoaded", function () {
+    const toggleMic = document.getElementById("toggleMic");
+    const toggleVideo = document.getElementById("toggleVideo");
+
+    let micOn = true;
+    let videoOn = true;
+    let chatOpen = false;
+
+    toggleMic.addEventListener("click", function () {
+        micOn = !micOn;
+        toggleMic.innerHTML = micOn 
+            ? '<i class="fas fa-microphone"></i>' 
+            : '<i class="fas fa-microphone-slash" style="color:red"></i>';
+    });
+
+    toggleVideo.addEventListener("click", function () {
+        videoOn = !videoOn;
+        toggleVideo.innerHTML = videoOn 
+            ? '<i class="fas fa-video"></i>' 
+            : '<i class="fas fa-video-slash" style="color:red"></i>';
+    });
+
+});

@@ -10,46 +10,239 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="style.css" />
   </head>
 
   <body>
     <div class="wrapper">
-      <div class="main p-3">
-        <div class="text-center">
-          <img src="image_1.png" alt="Buzzy Logo" />
+      <!-- Navigation Bar -->
+      <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+          <a class="navbar-brand" href="#">
+            <img src="image_1.png" alt="Buzzy Logo" height="40" />
+          </a>
+          
+          <!-- This button is needed for responsive design -->
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                  aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          
+          <!-- Login/Signup buttons (Shows when logged out) -->
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto" id="authLinks">
+              <li class="nav-item">
+                <a class="nav-link" href="login.html">Login</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="signup.html">Sign Up</a>
+              </li>
+            </ul>
+          </div>
+          
+          <!-- User Profile (Shows when logged in) -->
+          <div class="user-profile ms-auto" id="userProfileSection" style="display: none;">
+            <button class="btn dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+              <span id="navUsername">User</span>
+              <i class="fas fa-user-circle ms-2"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+              <li><a class="dropdown-item" href="#">My Profile</a></li>
+              <li><a class="dropdown-item" href="#">Settings</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="#" id="logoutBtn">Logout</a></li>
+            </ul>
+          </div>
         </div>
+      </nav>
 
-        <div
-          class="d-flex justify-content-center align-items-center mt-4 gap-3"
-        >
-          <!-- Create Meeting Button -->
-          <a href="meeting.html" class="btn btn-primary btn-lg">Create Buzz</a>
-
-          <!-- Input Box -->
-          <input type="text" id="buzzID" class="form-control w-25" placeholder="Enter Buzz ID" required oninput="toggleJoinButton()" />
-
-          <!-- Join Meeting Button (Initially Disabled) -->
-          <a href="#" id="joinBuzzBtn" class="btn btn-success btn-lg disabled">Join Buzz</a>
-
-          <script>
-            function toggleJoinButton() {
-              let input = document.getElementById("buzzID");
-              let button = document.getElementById("joinBuzzBtn");
-
-              // Enable button if input is not empty
-              if (input.value.trim() !== "") {
-                button.classList.remove("disabled");
-                button.href = "meeting.html?room=" + encodeURIComponent(input.value.trim()); // Redirect to room
-              } else {
-                button.classList.add("disabled");
-                button.removeAttribute("href");
-              }
-            }
-          </script>
-
+      <!-- Hero Section -->
+      <div class="hero-section">
+        <div class="container">
+          <div class="row align-items-center">
+            <div class="col-lg-6">
+              <h1 class="mb-4">Connect from anywhere with Buzzy</h1>
+              <p class="lead mb-4">High-quality video meetings for teams of all sizes. Easy to use, secure, and free.</p>
+              
+              <div class="d-flex flex-wrap gap-3 mb-4">
+                <div class="feature">
+                  <i class="fas fa-shield-alt"></i>
+                  <span>Secure Meetings</span>
+                </div>
+                <div class="feature">
+                  <i class="fas fa-users"></i>
+                  <span>Up to 100 Participants</span>
+                </div>
+                <div class="feature">
+                  <i class="fas fa-clock"></i>
+                  <span>No Time Limits</span>
+                </div>
+              </div>
+              
+              <div class="meeting-controls">
+                <!-- For logged in users -->
+                <div id="loggedInControls" style="display: none;">
+                  <a href="#" id="createMeetingBtn" class="btn btn-primary btn-lg me-2">
+                    <i class="fas fa-plus-circle me-2"></i>Create Buzz
+                  </a>
+                </div>
+                
+                <!-- Join meeting section - visible to all -->
+                <div class="join-meeting-section mt-3">
+                  <div class="input-group">
+                    <input type="text" id="buzzID" class="form-control" placeholder="Enter Buzz ID" required>
+                    <a href="#" id="joinBuzzBtn" class="btn btn-success disabled">
+                      <i class="fas fa-sign-in-alt me-2"></i>Join Buzz
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-lg-6 d-none d-lg-block">
+              <img src="image_1.png" alt="Meeting illustration" class="img-fluid rounded">
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Features Section -->
+      <div class="features-section py-5">
+        <div class="container">
+          <div class="row text-center mb-5">
+            <div class="col-12">
+              <h2>What Makes Buzzy Special</h2>
+            </div>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-4 mb-4">
+              <div class="feature-card">
+                <div class="feature-icon">
+                  <i class="fas fa-video"></i>
+                </div>
+                <h3>HD Video</h3>
+                <p>Crystal clear video in high definition so you never miss the details.</p>
+              </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+              <div class="feature-card">
+                <div class="feature-icon">
+                  <i class="fas fa-comments"></i>
+                </div>
+                <h3>Built-in Chat</h3>
+                <p>Share messages and files instantly with participants during your meeting.</p>
+              </div>
+            </div>
+            
+            <div class="col-md-4 mb-4">
+              <div class="feature-card">
+                <div class="feature-icon">
+                  <i class="fas fa-lock"></i>
+                </div>
+                <h3>Secure & Private</h3>
+                <p>All meetings are encrypted and password-protected for your security.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Call to Action -->
+      <div class="cta-section py-5 bg-light">
+        <div class="container text-center">
+          <h2 class="mb-4">Ready to get started?</h2>
+          <p class="lead mb-4">Create your free account and start hosting meetings in seconds.</p>
+          <a href="signup.html" class="btn btn-primary btn-lg">Sign Up for Free</a>
+        </div>
+      </div>
+      
+      <!-- Footer -->
+      <footer class="footer py-4 bg-dark text-white">
+        <div class="container">
+          <div class="row">
+            <div class="col-md-6">
+              <img src="image_1.png" alt="Buzzy Logo" height="30" class="mb-3">
+              <p>© 2025 Buzzy. All rights reserved.</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+              <ul class="list-inline mb-0">
+                <li class="list-inline-item"><a href="#" class="text-white">Privacy Policy</a></li>
+                <li class="list-inline-item"><a href="#" class="text-white">Terms of Service</a></li>
+                <li class="list-inline-item"><a href="#" class="text-white">Contact Us</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        // Check if user is logged in
+        const loggedIn = localStorage.getItem("buzzyLoggedIn");
+        const username = localStorage.getItem("buzzyUsername");
+        
+        // Show appropriate UI elements based on login status
+        if (loggedIn === "true" && username) {
+          // Show logged in UI
+          document.getElementById("userProfileSection").style.display = "block";
+          document.getElementById("navUsername").textContent = username;
+          document.getElementById("authLinks").parentElement.style.display = "none";
+          document.getElementById("loggedInControls").style.display = "block";
+        } else {
+          // Show logged out UI
+          document.getElementById("userProfileSection").style.display = "none";
+          document.getElementById("authLinks").parentElement.style.display = "flex";
+          document.getElementById("loggedInControls").style.display = "none";
+        }
+        
+        // Toggle Join Button functionality
+        const buzzID = document.getElementById("buzzID");
+        const joinBuzzBtn = document.getElementById("joinBuzzBtn");
+        
+        buzzID.addEventListener("input", function() {
+          if (this.value.trim() !== "") {
+            joinBuzzBtn.classList.remove("disabled");
+            joinBuzzBtn.href = loggedIn === "true" ? 
+              "meeting.html?room=" + encodeURIComponent(this.value.trim()) :
+              "guest_join.html?room=" + encodeURIComponent(this.value.trim());
+          } else {
+            joinBuzzBtn.classList.add("disabled");
+            joinBuzzBtn.removeAttribute("href");
+          }
+        });
+        
+        // Create Meeting button logic
+        document.getElementById("createMeetingBtn").addEventListener("click", function(e) {
+          e.preventDefault();
+          
+          // Generate room ID in abc-abc-abc format
+          const genRandomLetters = () => {
+            let result = '';
+            const characters = 'abcdefghijklmnopqrstuvwxyz';
+            for (let i = 0; i < 3; i++) {
+              result += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+            return result;
+          };
+          
+          const roomId = `${genRandomLetters()}-${genRandomLetters()}-${genRandomLetters()}`;
+          window.location.href = `meeting.html?room=${roomId}&isAdmin=true`;
+        });
+        
+        // Logout button
+        document.getElementById("logoutBtn").addEventListener("click", function(e) {
+          e.preventDefault();
+          localStorage.removeItem("buzzyLoggedIn");
+          localStorage.removeItem("buzzyUsername");
+          window.location.reload();
+        });
+      });
+    </script>
     <script src="script.js"></script>
   </body>
 </html>

@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.views.decorators.csrf import csrf_exempt
 from database import Database
 import json
 import matplotlib.pyplot as plt
@@ -11,6 +12,7 @@ import base64
 db = Database()
 
 # Create your views here.
+@csrf_exempt
 def landpage(request) :
     if request.method == "POST" :
         meeting = request.POST.get("buzzID")
@@ -26,6 +28,7 @@ def landpage(request) :
             return redirect("chat:error")
     return render(request, "chat/index.html")
 
+@csrf_exempt
 def dashboard(request):
     if request.method == "POST":
         if "createMeetingBtn" in request.POST:
@@ -57,6 +60,7 @@ def dashboard(request):
 def room(request, room_name):
     return render(request, 'chat/meeting.html', {'room_name': room_name})
 
+@csrf_exempt
 def login(request) :
     if request.COOKIES.get("remember_me") == "true":
         return redirect("chat:dashboard")
@@ -75,6 +79,7 @@ def login(request) :
         
     return render(request, "chat/login.html")
 
+@csrf_exempt
 def profile(request) :
     data = request.session.get("user")
     if request.method == "POST" :
@@ -88,6 +93,7 @@ def profile(request) :
         return response
     return render(request, "chat/profile.html", {"data" : data})
 
+@csrf_exempt
 def registration(request) :
     if request.method == "POST" :
         name = request.POST.get("name")
@@ -100,14 +106,17 @@ def registration(request) :
             return redirect("chat:login")
     return render(request, "chat/signup.html")
 
+@csrf_exempt
 def guest(request) :
     return render(request, "chat/guest_join.html")
 
+@csrf_exempt
 def cancel(request) :
     if request.session.get("user") :
         return redirect("chat:dashboard")
     return redirect("chat:landpage")
 
+@csrf_exempt
 def logout(request) :
     response = redirect("chat:landpage")
     response.delete_cookie("remember_me")
@@ -118,7 +127,7 @@ def logout(request) :
 def error(request) :
     return render(request, "chat/error.html")
 
-
+@csrf_exempt
 def data_visualization(request):
     # Path to the CSV file
     csv_path = os.path.join(settings.BASE_DIR, 'static', 'GGS_new.csv')

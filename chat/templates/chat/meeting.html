@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Buzzy - Meeting Room</title>
+    <link href="https://cdn.lineicons.com/4.0/lineicons.css" rel="stylesheet" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    {% comment %} <link rel="stylesheet" href="{% static "css/meeting_style.css" %}" /> {% endcomment %}
+  </head>
+  <style>
+    /* Main Meeting Layout - Optimized for video focus */
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      overflow: hidden;
+    }
+
+    .meeting-container {
+      display: flex;
+      height: 100vh;
+      position: relative;
+    }
+
+    /* Video Call Section - Expanded to 90%+ of screen */
+    .video-section {
+      flex: 1;
+      background: #1a1a1a;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      padding: 10px;
+      width: 100%;
+    }
+
+    /* Participant styles */
+    .participant {
+      position: relative;
+      width: 48%;
+      height: 48%;
+      min-width: 320px;
+      min-height: 240px;
+      background: #2a2a2a;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .participant video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      background: #333;
+    }
+
+    .participant-info {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      padding: 8px;
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Right Panel - Collapsed by default */
+    .right-panel {
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 0;
+      height: 100vh;
+      background: white;
+      border-left: 1px solid #ddd;
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      transition: all 0.3s ease;
+      overflow: hidden;
+    }
+
+    .right-panel.active {
+      width: 300px;
+    }
+
+    /* Meeting Code Section */
+    .meeting-code-container {
+      background: #f8f9fa;
+      border-bottom: 1px solid #ddd;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .meeting-code-header {
+      margin-bottom: 5px;
+    }
+
+    .meeting-code-header h4 {
+      margin: 0;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .meeting-code-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #fff;
+      padding: 8px 12px;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+    }
+
+    #meetingCodeDisplay {
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    .btn-control-small {
+      background: none;
+      border: none;
+      color: #3f51b5;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    /* Admin Panel */
+    .admin-panel {
+      background: #f8f9fa;
+      border-bottom: 1px solid #ddd;
+      padding: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .admin-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .admin-header h4 {
+      margin: 0;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .admin-controls-content {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .admin-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 8px;
+      width: calc(50% - 4px);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .admin-btn:hover {
+      background: #f1f3f9;
+      border-color: #3f51b5;
+      color: #3f51b5;
+    }
+
+    .admin-btn i {
+      font-size: 16px;
+      margin-bottom: 5px;
+    }
+
+    .admin-btn span {
+      font-size: 12px;
+    }
+
+    /* Chat Box - Hidden by default */
+    .chat-box {
+      flex: 1;
+      display: none;
+      flex-direction: column;
+      background: white;
+      border-top: 1px solid #ddd;
+      height: auto;
+      transition: all 0.3s ease;
+    }
+
+    .chat-box.active {
+      display: flex;
+    }
+
+    .chat-header {
+      background: #3f51b5;
+      color: white;
+      padding: 10px 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .chat-header h4 {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .chat-messages {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+      background: #f5f5f5;
+    }
+
+    .chat-message {
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .system-message .message-content {
+      background: #e6e6e6;
+      padding: 8px 12px;
+      border-radius: 15px;
+      display: inline-block;
+      max-width: 80%;
+      align-self: center;
+    }
+
+    .message-content p {
+      margin: 0;
+      font-size: 14px;
+    }
+
+    .chat-input {
+      display: flex;
+      padding: 10px;
+      border-top: 1px solid #ddd;
+      background: white;
+    }
+
+    .chat-input input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      outline: none;
+    }
+
+    .chat-input button {
+      background: #3f51b5;
+      color: white;
+      border: none;
+      width: 36px;
+      height: 36px;
+      margin-left: 8px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .close-chat {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    /* Minimalistic Control Buttons */
+    .control-buttons {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 12px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 8px 15px;
+      border-radius: 30px;
+      box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+    }
+
+    .btn-control {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 10px;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+
+    .btn-control:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-end-call {
+      background: rgba(255, 0, 0, 0.6);
+    }
+
+    .btn-end-call:hover {
+      background: rgba(255, 0, 0, 0.8);
+    }
+
+    /* Meeting code quick view */
+    .meeting-code-quick {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      border-radius: 5px;
+      padding: 5px 10px;
+      font-size: 12px;
+      z-index: 90;
+      cursor: pointer;
+    }
+
+    /* Quick panel toggle button */
+    .toggle-panel-btn {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      width: 40px;
+      height: 40px;
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 90;
+      cursor: pointer;
+    }
+
+    /* Participants List */
+    .participants-list {
+      position: absolute;
+      top: 70px;
+      right: 15px;
+      background: white;
+      width: 250px;
+      max-height: 400px;
+      border-radius: 8px;
+      box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
+      display: none;
+      flex-direction: column;
+      z-index: 1000;
+    }
+
+    .participants-list.active {
+      display: flex;
+    }
+
+    .participants-header {
+      background: #3f51b5;
+      color: white;
+      padding: 10px 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-radius: 8px 8px 0 0;
+    }
+
+    .participants-header h4 {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .participants-content {
+      padding: 10px;
+      overflow-y: auto;
+      max-height: 350px;
+    }
+
+    .close-participants {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .participant-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 10px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .participant-controls {
+      display: flex;
+      gap: 5px;
+    }
+
+    .participant-control {
+      background: none;
+      border: none;
+      color: #666;
+      cursor: pointer;
+      padding: 5px;
+    }
+
+    .participant-control:hover {
+      color: #3f51b5;
+    }
+
+    /* Media queries for responsive design */
+    @media (max-width: 768px) {
+      .participant {
+        width: 100%;
+        height: auto;
+        min-height: 180px;
+      }
+      
+      .right-panel.active {
+        width: 100%;
+        height: 50vh;
+        top: 50vh;
+      }
+      
+      .control-buttons {
+        width: 95%;
+        justify-content: center;
+        padding: 6px 8px;
+        gap: 5px;
+      }
+      
+      .btn-control {
+        width: 36px;
+        height: 36px;
+        font-size: 14px;
+        padding: 6px;
+      }
+      
+      .participants-list {
+        position: fixed;
+        right: 0;
+        top: 50px;
+        width: 300px;
+        height: auto;
+        background: white;
+        border: 1px solid #ccc;
+        display: none;
+    }
+
+    .participants-list.active {
+        display: block;
+    }
+    }
+
+  </style>
+  <body>
+    <div class="meeting-container">
+      <!-- Video Section -->
+      <div class="video-section">
+        <div class="participant">
+          <video id="localVideo" autoplay muted playsinline></video>
+          <div class="participant-info">
+            <span id="localParticipantName">You</span>
+            <i class="fas fa-microphone" id="localMicStatus"></i>
+          </div>
+        </div>
+        <div class="participant">
+          <video id="remoteVideo" autoplay playsinline></video>
+          <div class="participant-info">
+            <span id="remoteParticipantName">Waiting...</span>
+            <i class="fas fa-microphone" id="remoteMicStatus"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Side Panel (Meeting Code & Admin Controls) -->
+      <div class="right-panel">
+        <!-- Meeting Code Display -->
+        <div class="meeting-code-container">
+          <div class="meeting-code-header">
+            <h4>Meeting Code</h4>
+          </div>
+          <div class="meeting-code-content">
+            <span id="meetingCodeDisplay">BUZZY-123-456</span>
+            <button id="copyCodeBtn" class="btn-control-small" title="Copy meeting code">
+              <i class="fas fa-copy"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Admin Controls -->
+        <div class="admin-panel" id="adminPanel">
+          <div class="admin-header">
+            <h4>Admin Controls</h4>
+          </div>
+          <div class="admin-controls-content">
+            <button class="admin-btn" title="Kick participant">
+              <i class="fas fa-user-slash"></i>
+              <span>Kick</span>
+            </button>
+            <button class="admin-btn" title="Mute all participants">
+              <i class="fas fa-microphone-slash"></i>
+              <span>Mute All</span>
+            </button>
+            <button class="admin-btn" title="Disable chat">
+              <i class="fas fa-comment-slash"></i>
+              <span>Disable Chat</span>
+            </button>
+            <button class="admin-btn" title="Lock meeting">
+              <i class="fas fa-lock"></i>
+              <span>Lock Meeting</span>
+            </button>
+            <button class="admin-btn" title="Record meeting">
+              <i class="fas fa-record-vinyl"></i>
+              <span>Record</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Chat Box -->
+        <div class="chat-box" id="chatBox">
+          <div class="chat-header">
+            <h4>Meeting Chat</h4>
+            <button class="close-chat" id="toggleChatBtn">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div class="chat-messages" id="chatMessages">
+            <!-- Messages will be populated here -->
+            <div class="chat-message system-message">
+              <div class="message-content">
+                <p>Welcome to the meeting! Chat messages will appear here.</p>
+              </div>
+            </div>
+          </div>
+          <div class="chat-input">
+            <input type="text" id="messageInput" placeholder="Type a message..." />
+            <button id="sendMessageBtn">
+              <i class="fas fa-paper-plane"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Control Buttons -->
+      <div class="control-buttons">
+        <button class="btn-control" id="toggleMic" title="Toggle microphone">
+          <i class="fas fa-microphone"></i>
+        </button>
+        <button class="btn-control" id="toggleVideo" title="Toggle video">
+          <i class="fas fa-video"></i>
+        </button>
+        <button class="btn-control" id="toggleParticipants" title="Show participants">
+          <i class="fas fa-users"></i>
+        </button>
+        <button class="btn-control" id="toggleRightPanel" title="Open chat">
+          <i class="fas fa-comment"></i>
+        </button>
+        <button class="btn-control" id="shareScreen" title="Share screen">
+          <i class="fas fa-desktop"></i>
+        </button>
+        <button class="btn-control btn-end-call" onclick="{% url "chat:cancel" %}" id="endCall" title="End call">
+          <i class="fas fa-phone-slash"></i>
+        </button>
+      </div>
+
+      <!-- Participants List Popup -->
+      <div class="participants-list" id="participantsList">
+        <div class="participants-header">
+          <h4>Participants (2)</h4>
+          <button class="close-participants" id="closeParticipantsList">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="participants-content">
+          <div class="participant-item">
+            <span>You (Host)</span>
+            <div class="participant-controls">
+              <button class="participant-control" title="You are muted">
+                <i class="fas fa-microphone-slash"></i>
+              </button>
+            </div>
+          </div>
+          <div class="participant-item">
+            <span>John Doe</span>
+            <div class="participant-controls">
+              <button class="participant-control" title="Mute participant">
+                <i class="fas fa-microphone"></i>
+              </button>
+              <button class="participant-control" title="Remove participant">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    {% comment %} <script src="{% static "js/script.js" %}"></script> {% endcomment %}
+    <script>
+      const roomName = "{{ room_name }}";  // Passed from Django Template
+      const ws = new WebSocket(`wss://${window.location.host}/ws/chat/${roomName}/`);
+      const localVideo = document.getElementById("localVideo");
+      const videoContainer = document.getElementById("video-container");
+      
+      let localStream;
+      let peerConnections = {};  // Stores all peer connections (multiple users)
+      
+      const config = {
+          iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
+      };
+
+      async function startCall() {
+          localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+          localVideo.srcObject = localStream;
+
+          ws.onopen = () => {
+              ws.send(JSON.stringify({ type: "join", room: roomName }));
+          };
+
+          ws.onmessage = async (message) => {
+              let data = JSON.parse(message.data);
+
+              if (data.type === "user-joined") {
+                  createOffer(data.user_id);
+              } else if (data.type === "offer") {
+                  await createAnswer(data.user_id, data.offer);
+              } else if (data.type === "answer") {
+                  await peerConnections[data.user_id].setRemoteDescription(new RTCSessionDescription(data.answer));
+              } else if (data.type === "ice-candidate") {
+                  await peerConnections[data.user_id].addIceCandidate(new RTCIceCandidate(data.candidate));
+              }
+          };
+      }
+
+      function createPeerConnection(userId) {
+          const peerConnection = new RTCPeerConnection(config);
+
+          localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+          peerConnection.onicecandidate = event => {
+              if (event.candidate) {
+                  ws.send(JSON.stringify({ type: "ice-candidate", user_id: userId, candidate: event.candidate }));
+              }
+          };
+
+          peerConnection.ontrack = event => {
+              if (!document.getElementById(`video-${userId}`)) {
+                  const remoteVideo = document.createElement("video");
+                  remoteVideo.id = `video-${userId}`;
+                  remoteVideo.autoplay = true;
+                  remoteVideo.playsinline = true;
+                  videoContainer.appendChild(remoteVideo);
+              }
+              document.getElementById(`video-${userId}`).srcObject = event.streams[0];
+          };
+
+          return peerConnection;
+      }
+
+      async function createOffer(userId) {
+          peerConnections[userId] = createPeerConnection(userId);
+          const offer = await peerConnections[userId].createOffer();
+          await peerConnections[userId].setLocalDescription(offer);
+          ws.send(JSON.stringify({ type: "offer", user_id: userId, offer }));
+      }
+
+      async function createAnswer(userId, offer) {
+          peerConnections[userId] = createPeerConnection(userId);
+          await peerConnections[userId].setRemoteDescription(new RTCSessionDescription(offer));
+          const answer = await peerConnections[userId].createAnswer();
+          await peerConnections[userId].setLocalDescription(answer);
+          ws.send(JSON.stringify({ type: "answer", user_id: userId, answer }));
+      }
+
+      startCall();
+
+      document.getElementById("toggleMic").addEventListener("click", function () {
+          let audioTrack = localStream.getAudioTracks()[0];
+          if (audioTrack.enabled) {
+              audioTrack.enabled = false;
+              this.querySelector("i").classList.replace("fa-microphone", "fa-microphone-slash");
+          } else {
+              audioTrack.enabled = true;
+              this.querySelector("i").classList.replace("fa-microphone-slash", "fa-microphone");
+          }
+      });
+
+      // 🎥 Camera On/Off Toggle
+      document.getElementById("toggleVideo").addEventListener("click", function () {
+          let videoTrack = localStream.getVideoTracks()[0];
+          if (videoTrack.enabled) {
+              videoTrack.enabled = false;
+              this.querySelector("i").classList.replace("fa-video", "fa-video-slash");              
+          } else {
+              videoTrack.enabled = true;
+              this.querySelector("i").classList.replace("fa-video-slash", "fa-video");
+          }
+      });
+
+
+      {% comment %} test {% endcomment %}
+      document.addEventListener("DOMContentLoaded", function() {
+        const currentPage = window.location.pathname.split('/').pop();
+        
+        if (currentPage === 'index.html' || currentPage === '') {
+            setupIndexPage();
+        } else if (currentPage === 'meeting.html') {
+            setupMeetingPage();
+        }
+    });
+    
+    function setupIndexPage() {
+        const buzzID = document.getElementById("buzzID");
+        const joinBuzzBtn = document.getElementById("joinBuzzBtn");
+    
+        if (buzzID && joinBuzzBtn) {
+            buzzID.addEventListener("input", function() {
+                if (this.value.trim() !== "") {
+                    joinBuzzBtn.classList.remove("disabled");
+                    joinBuzzBtn.href = "meeting.html?room=" + encodeURIComponent(this.value.trim());
+                } else {
+                    joinBuzzBtn.classList.add("disabled");
+                    joinBuzzBtn.removeAttribute("href");
+                }
+            });
+    
+            joinBuzzBtn.addEventListener("click", async function(event) {
+                event.preventDefault();
+                const meetingCode = buzzID.value.trim();
+    
+                if (await validateMeetingCode(meetingCode)) {
+                    const isLoggedIn = localStorage.getItem("buzzyLoggedIn") === "true";
+    
+                    if (isLoggedIn) {
+                        window.location.href = `meeting.html?room=${meetingCode}`;
+                    } else {
+                        window.location.href = `guest_join.html?room=${meetingCode}`;
+                    }
+                }
+            });
+        }
+    }
+    
+    // Function to check if the entered meeting code is valid and active
+    async function validateMeetingCode(meetingCode) {
+        const codePattern = /^[a-z]{3}-[a-z]{3}-[a-z]{3}$/;
+    
+        if (!codePattern.test(meetingCode)) {
+            alert("Invalid meeting code format! Please use the format abc-abc-abc.");
+            return false;
+        }
+    
+        // Simulating a backend check (Replace with actual API call when backend is ready)
+        /*
+        try {
+            const response = await fetch("/api/checkMeeting", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ code: meetingCode })
+            });
+    
+            const data = await response.json();
+    
+            if (!data.valid) {
+                alert("Invalid or inactive meeting code. Please check and try again.");
+                return false;
+            }
+            return true;
+        } catch (error) {
+            console.error("Error checking meeting code:", error);
+            alert("Unable to verify meeting code. Please try again later.");
+            return false;
+        }
+        */
+    
+        return true; // Temporary return (remove when backend is implemented)
+    }
+    
+    function setupMeetingPage() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const roomId = urlParams.get('room') || generateMeetingId();
+        const isAdmin = urlParams.get('isAdmin') === 'true';
+        const isGuest = urlParams.get('isGuest') === 'true';
+    
+        document.getElementById("meetingCodeDisplay").textContent = roomId;
+        document.getElementById("localParticipantName").textContent = localStorage.getItem("buzzyUsername") || "You";
+    
+        if (!isAdmin) {
+            document.getElementById("adminPanel").style.display = "none";
+        }
+    
+        if (isGuest) {
+            restrictGuestPermissions();
+        }
+    
+        setupControlButtons();
+        setupChatFunctionality();
+        setupParticipantsList();
+        setupAdminPanelAndMeetingCode();
+        setupAdminButtons();
+    }
+    
+    function generateMeetingId() {
+        return Array(3).fill(0).map(() => Math.random().toString(36).substr(2, 3)).join('-');
+    }
+    
+    function setupAdminPanelAndMeetingCode() {
+        const chatBox = document.getElementById('chatBox');
+        const toggleRightPanel = document.getElementById('toggleRightPanel');
+        const copyCodeBtn = document.getElementById('copyCodeBtn');
+    
+        copyCodeBtn.addEventListener('click', function () {
+            navigator.clipboard.writeText(document.getElementById('meetingCodeDisplay').textContent)
+                .then(() => alert('Meeting code copied!'));
+        });
+    
+        toggleRightPanel.addEventListener('click', function () {
+            chatBox.classList.toggle('active');
+            toggleRightPanel.querySelector('i').className = 
+                chatBox.classList.contains('active') ? 'fas fa-times' : 'fas fa-comment';
+        });
+    }
+    
+    function setupControlButtons() {
+        document.getElementById("toggleMic").addEventListener("click", function() {
+            toggleMediaTrack("audio");
+        });
+    
+        document.getElementById("toggleVideo").addEventListener("click", function() {
+            toggleMediaTrack("video");
+        });
+    }
+    
+    function toggleMediaTrack(type) {
+        const videoElement = document.getElementById("localVideo");
+        if (videoElement.srcObject) {
+            const track = videoElement.srcObject.getTracks().find(t => t.kind === type);
+            if (track) {
+                track.enabled = !track.enabled;
+            }
+        } else {
+            console.warn(`No ${type} stream found`);
+        }
+    }
+    
+    function setupChatFunctionality() {
+        const sendMessageBtn = document.getElementById('sendMessageBtn');
+        const messageInput = document.getElementById('messageInput');
+        const chatMessages = document.getElementById('chatMessages');
+    
+        sendMessageBtn.addEventListener("click", sendChatMessage);
+        messageInput.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") sendChatMessage();
+        });
+    }
+    
+    function sendChatMessage() {
+        const messageInput = document.getElementById('messageInput');
+        if (messageInput.value.trim() !== "") {
+            document.getElementById('chatMessages').innerHTML += `<div class='chat-message'><p>${messageInput.value}</p></div>`;
+            messageInput.value = "";
+        }
+    }
+    
+    function setupParticipantsList() {
+        const participantsList = document.getElementById("participantsList");
+        const toggleParticipants = document.getElementById("toggleParticipants");
+        const closeParticipantsList = document.getElementById("closeParticipantsList");
+    
+        toggleParticipants.addEventListener("click", function () {
+            participantsList.classList.toggle('active');
+        });
+    
+        closeParticipantsList.addEventListener("click", function () {
+            participantsList.classList.remove('active');
+        });
+    }
+    
+     document.getElementById("endCall").addEventListener("click", function () {
+         if (confirm("Are you sure you want to leave the meeting?")) {
+             window.location.href = "{% url 'chat:cancel' %}"; // Redirect to homepage
+         }
+    });
+    
+    // Restrict guest users in the meeting room
+    function restrictGuestPermissions() {
+        console.log("Guest mode activated - restricting permissions.");
+    
+        document.getElementById("adminPanel").style.display = "none"; // Hide admin panel
+        document.getElementById("shareScreen").disabled = true; // Disable screen sharing
+        document.getElementById("toggleParticipants").disabled = true; // Disable participants list
+        document.getElementById("toggleRightPanel").disabled = false; // Allow chat access
+    
+        // Ensure guests can only toggle their own mic/video
+        document.getElementById("toggleMic").disabled = false;
+        document.getElementById("toggleVideo").disabled = false;
+    }
+    
+  </script>
+  </body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>WebRTC Multi-User Video Chat</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        video { width: 300px; height: 225px; margin: 10px; border: 2px solid black; }
+        #video-container { display: flex; flex-wrap: wrap; justify-content: center; }
+    </style>
+</head>
+<body>
+    <h2>WebRTC Multi-User Video Chat</h2>
+    <div id="video-container">
+        <video id="localVideo" autoplay playsinline muted></video>
+    </div>
+    <button id="toggleMic">Mute Mic</button>
+    <button id="toggleCamera">Turn Off Camera</button>
+
+    <script>
+        const roomName = "{{ room_name }}";  // Passed from Django Template
+        const ws = new WebSocket(`wss://${window.location.host}/ws/chat/${roomName}/`);
+        const localVideo = document.getElementById("localVideo");
+        const videoContainer = document.getElementById("video-container");
+        
+        let localStream;
+        let peerConnections = {};  // Stores all peer connections (multiple users)
+        
+        const config = {
+            iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
+        };
+
+        async function startCall() {
+            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            localVideo.srcObject = localStream;
+
+            ws.onopen = () => {
+                ws.send(JSON.stringify({ type: "join", room: roomName }));
+            };
+
+            ws.onmessage = async (message) => {
+                let data = JSON.parse(message.data);
+
+                if (data.type === "user-joined") {
+                    createOffer(data.user_id);
+                } else if (data.type === "offer") {
+                    await createAnswer(data.user_id, data.offer);
+                } else if (data.type === "answer") {
+                    await peerConnections[data.user_id].setRemoteDescription(new RTCSessionDescription(data.answer));
+                } else if (data.type === "ice-candidate") {
+                    await peerConnections[data.user_id].addIceCandidate(new RTCIceCandidate(data.candidate));
+                }
+            };
+        }
+
+        function createPeerConnection(userId) {
+            const peerConnection = new RTCPeerConnection(config);
+
+            localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+            peerConnection.onicecandidate = event => {
+                if (event.candidate) {
+                    ws.send(JSON.stringify({ type: "ice-candidate", user_id: userId, candidate: event.candidate }));
+                }
+            };
+
+            peerConnection.ontrack = event => {
+                if (!document.getElementById(`video-${userId}`)) {
+                    const remoteVideo = document.createElement("video");
+                    remoteVideo.id = `video-${userId}`;
+                    remoteVideo.autoplay = true;
+                    remoteVideo.playsinline = true;
+                    videoContainer.appendChild(remoteVideo);
+                }
+                document.getElementById(`video-${userId}`).srcObject = event.streams[0];
+            };
+
+            return peerConnection;
+        }
+
+        async function createOffer(userId) {
+            peerConnections[userId] = createPeerConnection(userId);
+            const offer = await peerConnections[userId].createOffer();
+            await peerConnections[userId].setLocalDescription(offer);
+            ws.send(JSON.stringify({ type: "offer", user_id: userId, offer }));
+        }
+
+        async function createAnswer(userId, offer) {
+            peerConnections[userId] = createPeerConnection(userId);
+            await peerConnections[userId].setRemoteDescription(new RTCSessionDescription(offer));
+            const answer = await peerConnections[userId].createAnswer();
+            await peerConnections[userId].setLocalDescription(answer);
+            ws.send(JSON.stringify({ type: "answer", user_id: userId, answer }));
+        }
+
+        startCall();
+
+        document.getElementById("toggleMic").addEventListener("click", function () {
+            let audioTrack = localStream.getAudioTracks()[0];
+            if (audioTrack.enabled) {
+                audioTrack.enabled = false;
+                this.innerText = "Unmute Mic";
+            } else {
+                audioTrack.enabled = true;
+                this.innerText = "Mute Mic";
+            }
+        });
+
+        // 🎥 Camera On/Off Toggle
+        document.getElementById("toggleCamera").addEventListener("click", function () {
+            let videoTrack = localStream.getVideoTracks()[0];
+            if (videoTrack.enabled) {
+                videoTrack.enabled = false;
+                this.innerText = "Turn On Camera";
+            } else {
+                videoTrack.enabled = true;
+                this.innerText = "Turn Off Camera";
+            }
+        });
+    </script>
+</body>
+</html>

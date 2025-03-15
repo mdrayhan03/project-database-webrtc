@@ -120,8 +120,15 @@ def cancel(request) :
 def logout(request) :
     response = redirect("chat:landpage")
     response.delete_cookie("remember_me")
-    db.find_logout_user(request.session.get("user")["_id"])
-    del request.session["user"]
+    id = None
+    if request.session["user"] :
+        id = request.session.get("user")["_id"]
+        del request.session["user"]
+    if request.COOKIES.get("user") :
+        id = request.COOKIES.get("user")["_id"]
+        response.delete_cookie("user")
+    db.find_logout_user(id)
+
     return response
 
 def error(request) :

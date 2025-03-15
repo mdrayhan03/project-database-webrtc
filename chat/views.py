@@ -117,17 +117,26 @@ def cancel(request) :
     return redirect("chat:landpage")
 
 @csrf_exempt
-def logout(request) :
+def logout(request):
     response = redirect("chat:landpage")
     response.delete_cookie("remember_me")
     id = None
-    if request.session.get("user") :
-        id = request.session.get("user")["_id"]
+
+    if request.session.get("user"):
+        id = request.session["user"].get("_id")
         del request.session["user"]
-    if request.COOKIES.get("user") :
-        id = request.COOKIES.get("user")["_id"]
+
+    user_cookie = request.COOKIES.get("user")
+    if user_cookie:
+        try:
+            user_data = json.loads(user_cookie)
+            id = user_data.get("_id")
+        except json.JSONDecodeError:
+            pass
         response.delete_cookie("user")
-    db.find_logout_user(id)
+
+    if id:
+        db.find_logout_user(id)
 
     return response
 

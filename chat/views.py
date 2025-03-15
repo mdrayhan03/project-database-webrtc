@@ -121,7 +121,7 @@ def logout(request) :
     response = redirect("chat:landpage")
     response.delete_cookie("remember_me")
     id = None
-    if request.session["user"] :
+    if request.session.get("user") :
         id = request.session.get("user")["_id"]
         del request.session["user"]
     if request.COOKIES.get("user") :

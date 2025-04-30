@@ -49,6 +49,7 @@
       min-height: 240px;
       background: #2a2a2a;
       border-radius: 10px;
+      box-shadow : 0 0 5px rgba(255, 255, 255, 0.5);
       overflow: hidden;
     }
 
@@ -87,6 +88,22 @@
       transition: all 0.3s ease;
       overflow: hidden;
     }
+    /* Meeting link copy */
+    .meeting-link-container {
+      position: fixed;
+      left: 10px;
+      top: 10px;
+      background: #f8f9fa;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+      padding: 10px;      
+      display: none;
+      flex-direction: column;
+    }
+
+    .meeting-link-container.active {
+      display: flex;
+    }
 
     .right-panel.active {
       width: 300px;
@@ -96,7 +113,7 @@
     .meeting-code-container {
       background: #f8f9fa;
       border-bottom: 1px solid #ddd;
-      padding: 10px;
+      padding: 10px;      
       display: flex;
       flex-direction: column;
     }
@@ -192,12 +209,16 @@
 
     /* Chat Box - Hidden by default */
     .chat-box {
-      flex: 1;
+      position: fixed;
+      right: 10px;
+      bottom: 100px;
       display: none;
       flex-direction: column;
       background: white;
       border-top: 1px solid #ddd;
-      height: auto;
+      border-radius: 10px;
+      overflow: hidden;
+      height: 500px;
       transition: all 0.3s ease;
     }
 
@@ -241,10 +262,17 @@
       align-self: center;
     }
 
+    .message-content {
+      margin-inline : 10px ;
+      padding : 10px ;
+      border-radius : 7px ;
+      background :rgb(205, 205, 205) ;
+    }
+
     .message-content p {
       margin: 0;
       font-size: 14px;
-    }
+    }    
 
     .chat-input {
       display: flex;
@@ -474,6 +502,11 @@
         display: block;
     }
     }
+    @media (max-width: 600px) {
+    .chat-box {
+      width: calc(100% - 20px);
+    }
+    }
 
   </style>
   <body>
@@ -494,6 +527,36 @@
             <i class="fas fa-microphone" id="remoteMicStatus"></i>
           </div>
         </div>
+        <!--extra-->
+        <div class="participant">
+          <video id="remoteVideo" autoplay playsinline></video>
+          <div class="participant-info">
+            <span id="remoteParticipantName">Waiting...</span>
+            <i class="fas fa-microphone" id="remoteMicStatus"></i>
+          </div>
+        </div>
+        <div class="participant">
+          <video id="remoteVideo" autoplay playsinline></video>
+          <div class="participant-info">
+            <span id="remoteParticipantName">Waiting...</span>
+            <i class="fas fa-microphone" id="remoteMicStatus"></i>
+          </div>
+        </div>
+        <div class="participant">
+          <video id="remoteVideo" autoplay playsinline></video>
+          <div class="participant-info">
+            <span id="remoteParticipantName">Waiting...</span>
+            <i class="fas fa-microphone" id="remoteMicStatus"></i>
+          </div>
+        </div>
+        <div class="participant">
+          <video id="remoteVideo" autoplay playsinline></video>
+          <div class="participant-info">
+            <span id="remoteParticipantName">Waiting...</span>
+            <i class="fas fa-microphone" id="remoteMicStatus"></i>
+          </div>
+        </div>
+        <!--extra end-->
       </div>
 
       <!-- Right Side Panel (Meeting Code & Admin Controls) -->
@@ -504,7 +567,7 @@
             <h4>Meeting Code</h4>
           </div>
           <div class="meeting-code-content">
-            <span id="meetingCodeDisplay">BUZZY-123-456</span>
+            <span id="meetingCodeDisplay">{{ room_name }}</span>
             <button id="copyCodeBtn" class="btn-control-small" title="Copy meeting code">
               <i class="fas fa-copy"></i>
             </button>
@@ -538,53 +601,84 @@
               <span>Record</span>
             </button>
           </div>
-        </div>
+        </div>        
+      </div>
 
-        <!-- Chat Box -->
-        <div class="chat-box" id="chatBox">
-          <div class="chat-header">
-            <h4>Meeting Chat</h4>
-            <button class="close-chat" id="toggleChatBtn">
-              <i class="fas fa-times"></i>
-            </button>
-          </div>
-          <div class="chat-messages" id="chatMessages">
-            <!-- Messages will be populated here -->
-            <div class="chat-message system-message">
-              <div class="message-content">
-                <p>Welcome to the meeting! Chat messages will appear here.</p>
-              </div>
+      <!-- Chat Box -->
+      <div class="chat-box" id="chatBox">
+        <div class="chat-header">
+          <h4>Meeting Chat</h4>
+          <button class="close-chat" id="toggleChatBtn">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      
+        <div class="chat-messages" id="chatMessages">
+          <!-- Messages will be populated here -->
+          <div class="chat-message system-message">
+            <div class="message-content">
+              <p>Welcome to the meeting! Chat messages will appear here.</p>
             </div>
           </div>
-          <div class="chat-input">
-            <input type="text" id="messageInput" placeholder="Type a message..." />
-            <button id="sendMessageBtn">
-              <i class="fas fa-paper-plane"></i>
-            </button>
-          </div>
+        </div>
+      
+        <!-- 🔥 File Preview Area -->
+        <div id="filePreview" style="display:none; margin: 10px; padding: 10px; border: 1px dashed #ccc; border-radius: 5px;"></div>
+      
+        <div class="chat-input">
+          <!-- ➕ Plus Icon Button -->
+          <button id="uploadFileBtn" style="margin-right: 5px;">
+            <i class="fas fa-plus" id="uploadIcon"></i>
+          </button>
+      
+          <!-- Hidden File Input -->
+          <input type="file" id="fileInput"  style="display: none;" />
+      
+          <input type="text" id="messageInput" placeholder="Type a message..." />
+          <button id="sendMessageBtn">
+            <i class="fas fa-paper-plane"></i>
+          </button>
         </div>
       </div>
 
       <!-- Control Buttons -->
       <div class="control-buttons">
+        <button class="btn-control" id="meetLink" title="Meet Link" onclick="meetLinkContainerFunction()">
+          <i class="fas fa-link"></i>
+        </button>
         <button class="btn-control" id="toggleMic" title="Toggle microphone">
           <i class="fas fa-microphone"></i>
         </button>
         <button class="btn-control" id="toggleVideo" title="Toggle video">
           <i class="fas fa-video"></i>
         </button>
-        <button class="btn-control" id="toggleParticipants" title="Show participants">
-          <i class="fas fa-users"></i>
-        </button>
+        {% comment %} <button class="btn-control" id="toggleParticipants" title="Show participants">
+          <i class="fas fa-download"></i>
+        </button> {% endcomment %}
         <button class="btn-control" id="toggleRightPanel" title="Open chat">
           <i class="fas fa-comment"></i>
-        </button>
-        <button class="btn-control" id="shareScreen" title="Share screen">
-          <i class="fas fa-desktop"></i>
-        </button>
+        </button>        
         <button class="btn-control btn-end-call" onclick="{% url "chat:cancel" %}" id="endCall" title="End call">
           <i class="fas fa-phone-slash"></i>
         </button>
+      </div>
+
+      <div class="meeting-link-container" id="meetLinkContainer">
+        <div class="meeting-code-header">
+          <h4>Meeting Code</h4>
+        </div>
+        <div class="meeting-code-content">
+          <span id="meetingCodeDisplay">{{ room_name }}</span>
+          <button id="copyCodeBtn" class="btn-control-small" title="Copy meeting code" onclick="copyMeetLinkFunction()">
+            <i class="fas fa-copy"></i>
+          </button>
+        </div>
+        <div>
+          Max Member: {{ room.maxMember }}
+        </div>
+        <div>
+          Time: {{ room.maxTime }} min
+        </div>
       </div>
 
       <!-- Participants List Popup -->
@@ -920,7 +1014,248 @@
         document.getElementById("toggleMic").disabled = false;
         document.getElementById("toggleVideo").disabled = false;
     }
+
+    function meetLinkContainerFunction() {
+      document.getElementById("meetLinkContainer").classList.toggle("active");
+    }
+
+    const copyButton = document.getElementById("copyCodeBtn");
+
+    function copyMeetLinkFunction() {      
+      const meetingCode = document.getElementById("meetingCodeDisplay").innerText;
+      console.log(meetingCode);
+      navigator.clipboard.writeText(meetingCode)
+        .then(() => {
+          alert("Meeting code copied!");
+        })
+        .catch(err => {
+          console.error("Failed to copy: ", err);
+        });
+    }
+
+    const toggleButton = document.getElementById("toggleRightPanel");
+    const chatBox = document.getElementById("chatBox");
+
+    toggleButton.addEventListener("click", function() {
+      chatBox.classList.toggle("active");
+    });
+
+    const toggleTButton = document.getElementById("toggleChatBtn");
+
+    toggleTButton.addEventListener("click", function() {
+      chatBox.classList.toggle("active");
+    });
+
+    const sendMessageBtn = document.getElementById("sendMessageBtn");
+    const messageInput = document.getElementById("messageInput");
+    const chatMessages = document.getElementById("chatMessages");
     
+    const fileInput = document.getElementById('fileInput');
+    const filePreview = document.getElementById('filePreview');
+    const uploadFileBtn = document.getElementById('uploadFileBtn');   
+    
+    sendMessageBtn.addEventListener("click", function() {
+      const messageText = messageInput.value.trim();
+      const file = fileInput.files[0];
+    
+      if (file) {
+        addFileMessage("You", messageText, file);
+        messageInput.value = "";
+        fileInput.value = "";
+        uploadIcon.classList.replace('fa-xmark','fa-plus');
+      }
+      else if (messageText !== "") {
+        addMessage("You", messageText);
+        messageInput.value = "";
+      }
+    });
+    
+    function addMessage(senderName, messageText) {
+      const messageDiv = document.createElement("div");
+      messageDiv.classList.add("chat-message");
+    
+      messageDiv.innerHTML = `
+        <div class="message-content">
+          <strong>${senderName}</strong><br>&nbsp;<span>${messageText}</span>
+        </div>
+      `;
+    
+      chatMessages.appendChild(messageDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll to bottom
+    }
+
+    function uploadFile(file, callback) {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('roomID', '{{ roomID }}');
+      formData.append('userID', '{{ room.adminID }}');
+    
+      fetch('/upload/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.status === 'success') {
+            callback(data.link);  // 🔁 Pass link to your custom logic
+          } else {
+            console.error('Upload failed:', data);
+          }
+        })
+        .catch(error => {
+          console.error('Error during upload:', error);
+        });
+    }
+    
+    function addFileMessage(senderName, messageText, file) {      
+      const messageDiv = document.createElement("div");
+      messageDiv.classList.add("chat-message");
+    
+      const messageContent = document.createElement("div");
+      messageContent.classList.add("message-content");
+    
+      messageContent.innerHTML = `<strong>${senderName}</strong><br>`;
+    
+      if (file.type.startsWith('image/')) {
+        // Image file preview
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          img.alt = "Preview";
+          img.style.maxWidth = "100px";
+          img.style.marginTop = "5px";
+          messageContent.appendChild(img);
+    
+          uploadFile(file, function(downloadLink) {
+            const fileName = document.createElement('small');
+            fileName.innerHTML = `File name: <a href="${downloadLink}"><i class="fas fa-download"></i></i>${file.name}</a>`;
+            messageContent.appendChild(fileName);
+          }); 
+    
+          const msgSpan = document.createElement('span');
+          msgSpan.innerHTML = `<br>&nbsp;${messageText}`;
+          messageContent.appendChild(msgSpan);
+    
+          messageDiv.appendChild(messageContent);
+          chatMessages.appendChild(messageDiv);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        };
+        reader.readAsDataURL(file);
+      } else {
+        // Non-image file preview
+        const fileIcon = document.createElement('img');
+        fileIcon.src = 'https://icon-library.com/images/file-folder-icon-png/file-folder-icon-png-16.jpg';
+        fileIcon.alt = "File";
+        fileIcon.style.maxWidth = "50px";
+        fileIcon.style.marginTop = "5px";
+    
+        messageContent.appendChild(fileIcon);
+        uploadFile(file, function(downloadLink) {
+          const fileName = document.createElement('small');
+          fileName.innerHTML = `<br>File name: <a href="${downloadLink}"><i class="fas fa-download"></i></i>${file.name}</a>`;
+          messageContent.appendChild(fileName);
+        });        
+        if (messageText != "") {
+          const msgSpan = document.createElement('span');
+          msgSpan.innerHTML = `<br>&nbsp;${messageText}`;
+          messageContent.appendChild(msgSpan);
+        }
+    
+        messageDiv.appendChild(messageContent);
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;        
+
+      }
+    
+      filePreview.innerHTML = "";
+    }    
+
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+    // When clicking the plus icon ➕
+    uploadFileBtn.addEventListener('click', () => {
+      const uploadIcon = document.getElementById('uploadIcon');
+      if (uploadIcon.classList.contains('fa-xmark')) {
+        filePreview.innerHTML = "";
+        filePreview.style.display = "none";
+        fileInput.value = "" ;
+        uploadIcon.classList.replace('fa-xmark','fa-plus');
+      }
+      else {
+        uploadIcon.classList.replace('fa-plus','fa-xmark');
+        fileInput.click();  // Trigger hidden file input
+      }
+    });
+
+    // When a file is selected 📁
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length === 0) {
+        uploadIcon.classList.replace('fa-xmark','fa-plus');
+        return ;
+      }
+      const file = fileInput.files[0];
+      const maxSizeMB = 5;
+    
+      if (file && file.size > maxSizeMB * 1024 * 1024) {
+        alert(`File size must be less than ${maxSizeMB}MB`);
+        this.value = '';
+        uploadIcon.classList.replace('fa-xmark','fa-plus');
+        return ;
+      }
+
+      if (file) {
+        // Clear previous preview
+        filePreview.innerHTML = "";
+
+        if (file.type.startsWith('image/')) {
+          // If the file is an image, show the image preview
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.alt = "Preview";
+            img.style.maxWidth = "100px";
+            img.style.marginTop = "5px";
+
+            filePreview.innerHTML = `<strong>Selected Image:</strong><br/>`;
+            filePreview.appendChild(img);
+            filePreview.innerHTML += `<br/><small>${file.name}</small>`;
+            filePreview.style.display = 'block';
+          };
+          reader.readAsDataURL(file);
+        } else {
+          // If the file is not an image, show a file icon + file name
+          const fileIcon = document.createElement('img');
+          fileIcon.src = 'https://icon-library.com/images/file-folder-icon-png/file-folder-icon-png-16.jpg';
+          fileIcon.alt = "File";
+          fileIcon.style.maxWidth = "50px";
+          fileIcon.style.marginTop = "5px";
+
+          filePreview.innerHTML = `<strong>Selected File:</strong><br/>`;
+          filePreview.appendChild(fileIcon);
+          filePreview.innerHTML += `<br/><small>${file.name}</small>`;
+          filePreview.style.display = 'block';
+        }
+      }
+    });
+
   </script>
   </body>
 </html>

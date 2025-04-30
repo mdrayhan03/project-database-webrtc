@@ -11,6 +11,7 @@ class Database:
         self.user_col = db["User_Col"]
         self.meeting_col = db["Meeting_Col"]
         self.history_col = db["History_Col"]
+        self.upload_col = db["Upload_Col"]
 
     def insert_new_user(self, name, email, password) :
         data = {
@@ -136,7 +137,6 @@ class Database:
     
     def find_existing_meeting(self, id) :
         try:
-            print("Validation")
             id = ObjectId(id)
         except InvalidId:
             return None
@@ -154,3 +154,70 @@ class Database:
                     return None
         except PyMongoError as e:
             print(f"An error occurred: {e}")
+
+    def get_created_meetings(self, user_id):
+        meetings = self.meeting_col.find({"adminID": str(user_id)})
+        created = []
+        for m in meetings:
+            created.append({
+                "meeting_id": str(m["_id"]),
+                "start_time": m.get("startTime", "N/A"),
+                "status": "Running" if m.get("status") == 1 else "Ended",
+            })
+        return created
+
+    # Get joined meetings by the logged-in user
+    def get_joined_meetings(self, user_id):
+        joined_histories = self.history_col.find({"userID": str(user_id)})
+        joined = []
+        for h in joined_histories:
+            meeting = self.meeting_col.find_one({"_id": h["meetingID"]})
+            if meeting:
+                joined.append({
+                    "meeting_id": h["meetingID"],
+                    "creator_id": meeting.get("adminID", "N/A"),
+                    "start_time": meeting.get("startTime", "N/A"),
+                    "join_time": h.get("startTime", "N/A"),
+                })
+        return joined
+    
+    def insert_new_upload(self, meeting_id, sender_id, file_name, file_type, file_url):
+        upload_data = {
+            "meetingID": str(meeting_id),
+            "senderID": str(sender_id),
+            "fileName" : file_name,
+            "fileType": file_type,
+            "fileURL": file_url,
+            "sendTime": datetime.now().strftime("%H:%M:%S")
+        }
+        try:
+            response = self.upload_col.insert_one(upload_data)
+            if response.inserted_id:
+                print(f"Upload inserted successfully with ID: {response.inserted_id}")
+                return response.inserted_id
+            else:
+                print("Upload insertion failed: No inserted ID returned.")
+        except PyMongoError as e:
+            print(f"An error occurred during upload insertion: {e}")
+    
+    def get_uploads_by_meeting(self, meeting_id):
+        try:
+            uploads = list(self.upload_col.find({"meetingID": str(meeting_id)}))
+            for upload in uploads:
+                upload["_id"] = str(upload["_id"])  # Optional: convert ObjectID to string
+            return uploads
+        except PyMongoError as e:
+            print(f"An error occurred while fetching uploads: {e}")
+            return []
+    
+    def get_uploads_by_sender(self, sender_id):
+        try:
+            uploads = list(self.upload_col.find({"senderID": str(sender_id)}))
+            for upload in uploads:
+                upload["_id"] = str(upload["_id"])  # Optional: convert ObjectID to string
+            return uploads
+        except PyMongoError as e:
+            print(f"An error occurred while fetching uploads by sender: {e}")
+            return []
+
+

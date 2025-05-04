@@ -19,7 +19,7 @@ try:
         creds = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
         print("✅ Authenticated using local JSON file.")
     else:
-        google_creds_b64 = os.getenv("GOOGLE_CREDENTIALS_B64")
+        google_creds_b64 = os.getenv("GOOGLE_CREDENTIALS")
         if not google_creds_b64:
             raise Exception("No credentials file or GOOGLE_CREDENTIALS_B64 environment variable found.")
         # Decode base64 to JSON

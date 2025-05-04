@@ -18,5 +18,5 @@ urlpatterns = [
     path("history/", views.history, name="history"),
     path("upload/", views.upload, name="upload"),
     path("uploaded/<str:meetingID>/", views.uploaded, name="uploaded"),
-
+    path("users/", views.users, name="users"),
 ]

@@ -28,6 +28,9 @@
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav ms-auto">
             <li class="nav-item"><a class="nav-link" href="{% url "chat:profile" %}">Profile</a></li>
+            {% if user.type == 1 or user.type == 2 %}
+            <li class="nav-item"><a class="nav-link" href="{% url "chat:users" %}">Users</a></li>
+            {% endif %}
             <li class="nav-item"><a class="nav-link" href="{% url "chat:history" %}">History</a></li>
             <li class="nav-item"><a class="nav-link" href="{% url "chat:logout" %}">Logout</a></li>
           </ul>

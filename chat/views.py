@@ -71,8 +71,9 @@ def dashboard(request):
             db.insert_new_history(response, user["_id"], 1)
             
             return redirect("chat:room", room_name=response)
-    
-    return render(request, "chat/dashboard.html")
+    user = request.session.get("user")
+    print(type(user))
+    return render(request, "chat/dashboard.html", {"user" : user})
 
 def room(request, room_name):
     room = db.find_existing_meeting(room_name)
@@ -207,6 +208,8 @@ def upload(request):
         roomID = request.POST.get("roomID")
         uploaded_file = request.FILES['file']
 
+        print(senderID, roomID, uploaded_file.name)
+
         link = upload_to_drive(uploaded_file)        
         if link :
             print(link)
@@ -218,3 +221,19 @@ def upload(request):
 def uploaded(request, meetingID) :
     uploads = db.get_uploads_by_meeting(meetingID)
     return render(request, "chat/uploadedFile.html", {"uploads" : uploads})
+
+def users(request) :
+    data = db.find_all_user()
+    supers = list()
+    admins = list()
+    users = list()
+    for d in data :
+        if d["type"] == 1 :
+            supers.append(d)
+        elif d["type"] == 2 :
+            admins.append(d)
+        elif d["type"] == 3 :
+            users.append(d)
+
+    print(supers, admins, users)
+    return render(request, "chat/usercontrol.html", {"supers" : supers, "admins" : admins, "users" : users})

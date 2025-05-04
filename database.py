@@ -221,3 +221,12 @@ class Database:
             return []
 
 
+    def find_all_user(self):
+        try:
+            users = list(self.user_col.find())  # Combine into one line
+            for user in users:
+                user["_id"] = str(user["_id"])  # Convert ObjectId to string
+            return users
+        except PyMongoError as e:
+            print(f"An error occurred while fetching users: {e}")
+            return []

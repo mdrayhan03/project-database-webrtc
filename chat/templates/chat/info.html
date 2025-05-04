@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Developer Information</title>
+    <link href="https://cdn.lineicons.com/4.0/lineicons.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  </head>
+  <body>
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+      <div class="container">
+        <a class="navbar-brand" href="#">
+          <img src="{% static 'media/image_1.png' %}" alt="Buzzy Logo" height="40" />
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          {% comment %} <ul class="navbar-nav ms-auto">
+            <li class="nav-item"><a class="nav-link" href="{% url 'chat:dashboard' %}">Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'chat:profile' %}">Profile</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'chat:logout' %}">Logout</a></li>
+          </ul> {% endcomment %}
+        </div>
+      </div>
+    </nav>
+
+    <!-- Team Section -->
+    <section class="py-5 bg-light">
+      <div class="container">
+        <h2 class="text-center mb-5">Meet Our Team</h2>
+        <div class="row g-4">
+          <!-- Member 1 -->
+          <div class="col-md-6 col-lg-3">
+            <div class="card h-100 shadow text-center">
+              <img src="{% static 'media/dev1.jpeg' %}" class="card-img-top" alt="Rayhan" style="height: 220px; object-fit: cover;">
+              <div class="card-body">
+                <h5 class="card-title">Md Rayhan Hossain</h5>
+                <p class="card-text">ID: 2211229</p>
+                <div class="d-flex justify-content-center flex-wrap gap-2">
+                  <a href="https://www.notion.so/WebRTC-Realtime-Video-Chat-App-Personal-1a0947ba856f80739384c89e84cc9716?pvs=4" class="btn btn-outline-primary btn-sm" target="_blank">
+                    <i class="fa-brands fa-notion"></i> Personal
+                  </a>
+                  <a href="https://www.notion.so/WebRTC-Realtime-Video-Chat-App-1a0947ba856f806a8e9cce826decea8a" class="btn btn-outline-secondary btn-sm" target="_blank">
+                    <i class="fa-brands fa-notion"></i> Group
+                  </a>
+                  <a href="https://github.com/mdrayhan03" class="btn btn-outline-dark btn-sm" target="_blank">
+                    <i class="fab fa-github"></i> GitHub
+                  </a>
+                  <a href="https://github.com/mdrayhan03/project-database-webrtc" class="btn btn-outline-success btn-sm" target="_blank">
+                    <i class="fas fa-code-branch"></i> Project
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Member 2 -->
+          <div class="col-md-6 col-lg-3">
+            <div class="card h-100 shadow text-center">
+              <img src="{% static 'media/dev2.jpeg' %}" class="card-img-top" alt="Member 2" style="height: 220px; object-fit: cover;">
+              <div class="card-body">
+                <h5 class="card-title">Lishan Rafid</h5>
+                <p class="card-text">ID: 2120293</p>
+                <div class="d-flex justify-content-center flex-wrap gap-2">
+                  <a href="https://www.notion.so/WebRTC-Realtime-Video-Chat-App-Personal-1b4947ba856f80259e2fd8aaddf19f38" class="btn btn-outline-primary btn-sm" target="_blank">
+                    <i class="fa-brands fa-notion"></i> Personal
+                  </a>
+                  <a href="https://www.notion.so/WebRTC-Realtime-Video-Chat-App-1a0947ba856f806a8e9cce826decea8a" class="btn btn-outline-secondary btn-sm" target="_blank">
+                    <i class="fa-brands fa-notion"></i> Group
+                  </a>
+                  <a href="https://github.com/miles-17" class="btn btn-outline-dark btn-sm" target="_blank">
+                    <i class="fab fa-github"></i> GitHub
+                  </a>
+                  <a href="https://github.com/mdrayhan03/project-database-webrtc" class="btn btn-outline-success btn-sm" target="_blank">
+                    <i class="fas fa-code-branch"></i> Project
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Member 3 -->
+          <div class="col-md-6 col-lg-3">
+            <div class="card h-100 shadow text-center">
+              <img src="{% static 'media/dev3.jpeg' %}" class="card-img-top" alt="Member 3" style="height: 220px; object-fit: cover;">
+              <div class="card-body">
+                <h5 class="card-title">Tasnuba Badrul</h5>
+                <p class="card-text">ID: 2120368</p>
+                <div class="d-flex justify-content-center flex-wrap gap-2">
+                  <a href="https://www.notion.so/WebRTC-Realtime-Video-Chat-App-Personal-1e9947ba856f809eaa20ccfc5ba6df42" class="btn btn-outline-primary btn-sm" target="_blank">
+                    <i class="fa-brands fa-notion"></i> Personal
+                  </a>
+                  <a href="https://www.notion.so/WebRTC-Realtime-Video-Chat-App-1a0947ba856f806a8e9cce826decea8a" class="btn btn-outline-secondary btn-sm" target="_blank">
+                    <i class="fa-brands fa-notion"></i> Group
+                  </a>
+                  <a href="https://github.com/tasnu-ba" class="btn btn-outline-dark btn-sm" target="_blank">
+                    <i class="fab fa-github"></i> GitHub
+                  </a>
+                  <a href="https://github.com/mdrayhan03/project-database-webrtc" class="btn btn-outline-success btn-sm" target="_blank">
+                    <i class="fas fa-code-branch"></i> Project
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Member 4 -->
+          <div class="col-md-6 col-lg-3">
+            <div class="card h-100 shadow text-center">
+              <img src="{% static 'media/dev4.jpg' %}" class="card-img-top" alt="Member 4" style="height: 220px; object-fit: cover;">
+              <div class="card-body">
+                <h5 class="card-title">A.S.M Borhanul Islam</h5>
+                <p class="card-text">ID: 2221128</p>
+                <div class="d-flex justify-content-center flex-wrap gap-2">
+                  <a href="https://www.notion.so/WebRTC-Realtime-Video-Chat-App-Personal-1b4947ba856f80f79bdae1ef4a61ec5a?pvs=4" class="btn btn-outline-primary btn-sm" target="_blank">
+                    <i class="fa-brands fa-notion"></i> Personal
+                  </a>
+                  <a href="https://www.notion.so/WebRTC-Realtime-Video-Chat-App-1a0947ba856f806a8e9cce826decea8a" class="btn btn-outline-secondary btn-sm" target="_blank">
+                    <i class="fa-brands fa-notion"></i> Group
+                  </a>
+                  <a href="https://github.com/borhangohan" class="btn btn-outline-dark btn-sm" target="_blank">
+                    <i class="fab fa-github"></i> GitHub
+                  </a>
+                  <a href="https://github.com/mdrayhan03/project-database-webrtc" class="btn btn-outline-success btn-sm" target="_blank">
+                    <i class="fas fa-code-branch"></i> Project
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer py-4 bg-dark text-white">
+      <div class="container text-center">
+        <p>© 2025 Buzzy. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

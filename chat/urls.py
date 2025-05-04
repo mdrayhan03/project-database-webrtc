@@ -19,4 +19,6 @@ urlpatterns = [
     path("upload/", views.upload, name="upload"),
     path("uploaded/<str:meetingID>/", views.uploaded, name="uploaded"),
     path("users/", views.users, name="users"),
+    path("info/", views.info, name="info"),
+    path("marks/", views.marks, name="marks"),
 ]

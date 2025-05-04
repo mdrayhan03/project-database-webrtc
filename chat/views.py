@@ -237,3 +237,9 @@ def users(request) :
 
     print(supers, admins, users)
     return render(request, "chat/usercontrol.html", {"supers" : supers, "admins" : admins, "users" : users})
+
+def info(request) :
+    return render(request, "chat/info.html")
+
+def marks(request) :
+    return render(request, "chat/marks.html")
